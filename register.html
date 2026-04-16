@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إنشاء حساب جديد - منصة المستر عصام شويقة</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+</head>
+<body class="auth-page">
+    <div class="bg-animation">
+        <div class="gear gear-1"></div>
+        <div class="gear gear-2"></div>
+        <div class="gear gear-3"></div>
+        <div class="gear gear-4"></div>
+        <div class="gear gear-5"></div>
+    </div>
+
+    <div class="auth-container">
+        <div class="auth-card register-card">
+            <div class="logo-section">
+                <div class="logo-icon">📚</div>
+                <h1>منصة المستر عصام شويقة</h1>
+                <p>إنشاء حساب جديد</p>
+            </div>
+
+            <form id="registerForm" class="auth-form">
+                <div class="input-group">
+                    <label>الاسم الأول</label>
+                    <input type="text" id="firstName" placeholder="الاسم الأول" required>
+                </div>
+                <div class="input-group">
+                    <label>الاسم الثاني</label>
+                    <input type="text" id="secondName" placeholder="الاسم الثاني" required>
+                </div>
+                <div class="input-group">
+                    <label>الاسم الثالث</label>
+                    <input type="text" id="thirdName" placeholder="الاسم الثالث" required>
+                </div>
+                <div class="input-group">
+                    <label>رقم الطالب</label>
+                    <input type="text" id="studentNumber" placeholder="رقم الطالب" required>
+                </div>
+                <div class="input-group">
+                    <label>رقم ولي الأمر</label>
+                    <input type="tel" id="parentNumber" placeholder="رقم ولي الأمر" required>
+                </div>
+                <div class="input-group">
+                    <label>الرقم القومي</label>
+                    <input type="text" id="nationalId" placeholder="الرقم القومي (14 رقم)" required maxlength="14" pattern="[0-9]{14}">                </div>
+                <div class="input-group">
+                    <label>الصف الدراسي</label>
+                    <select id="grade" required>
+                        <option value="">اختر الصف</option>
+                        <option value="أولى ثانوي">أولى ثانوي</option>
+                        <option value="تانية ثانوي">تانية ثانوي</option>
+                        <option value="تالتة ثانوي">تالتة ثانوي</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>كلمة المرور</label>
+                    <input type="password" id="password" placeholder="كلمة المرور" required minlength="6">
+                </div>
+                <div class="input-group">
+                    <label>تأكيد كلمة المرور</label>
+                    <input type="password" id="confirmPassword" placeholder="تأكيد كلمة المرور" required>
+                </div>
+
+                <button type="submit" class="btn-primary">
+                    <span>إنشاء الحساب</span>
+                    <div class="btn-shine"></div>
+                </button>
+
+                <p class="auth-switch">لديك حساب بالفعل؟ <a href="index.html">تسجيل الدخول</a></p>
+            </form>
+
+            <div id="registerMessage" class="message"></div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+        document.getElementById('registerForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const data = {
+                firstName: document.getElementById('firstName').value,
+                secondName: document.getElementById('secondName').value,
+                thirdName: document.getElementById('thirdName').value,
+                studentNumber: document.getElementById('studentNumber').value,
+                parentNumber: document.getElementById('parentNumber').value,
+                nationalId: document.getElementById('nationalId').value,
+                grade: document.getElementById('grade').value,
+                password: document.getElementById('password').value,
+                confirmPassword: document.getElementById('confirmPassword').value
+            };
+            handleRegister(data);
+        });
+    </script>
+</body></html>

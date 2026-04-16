@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>منصة المستر عصام شويقة - تسجيل الدخول</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+</head>
+<body class="auth-page">
+    <div class="bg-animation">
+        <div class="gear gear-1"></div>
+        <div class="gear gear-2"></div>
+        <div class="gear gear-3"></div>
+        <div class="gear gear-4"></div>
+        <div class="gear gear-5"></div>
+    </div>
+
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="logo-section">
+                <div class="logo-icon">📚</div>
+                <h1>منصة المستر عصام شويقة</h1>
+                <p>لغة عربية - درجة أولى - مدرس معتمد</p>
+            </div>
+
+            <form id="loginForm" class="auth-form">
+                <h2>تسجيل الدخول</h2>
+                <div class="input-group">
+                    <label>الرقم القومي</label>
+                    <input type="text" id="loginNationalId" placeholder="أدخل الرقم القومي" required>
+                </div>
+                <div class="input-group">
+                    <label>كلمة المرور</label>
+                    <input type="password" id="loginPassword" placeholder="أدخل كلمة المرور" required>
+                </div>
+                <button type="submit" class="btn-primary">
+                    <span>دخول</span>
+                    <div class="btn-shine"></div>
+                </button>
+                <p class="auth-switch">ليس لديك حساب؟ <a href="register.html">إنشاء حساب جديد</a></p>
+            </form>
+
+            <div id="loginMessage" class="message"></div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const nationalId = document.getElementById('loginNationalId').value;
+            const password = document.getElementById('loginPassword').value;
+            handleLogin(nationalId, password);
+        });
+    </script>
+</body>
+</html>

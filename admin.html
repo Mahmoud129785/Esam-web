@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة الإدارة - منصة المستر عصام شويقة</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="admin-page">
+    <div class="bg-animation">
+        <div class="gear gear-1"></div>
+        <div class="gear gear-2"></div>
+        <div class="gear gear-3"></div>
+        <div class="gear gear-4"></div>
+        <div class="gear gear-5"></div>
+    </div>
+
+    <!-- Admin Sidebar -->
+    <aside class="sidebar admin-sidebar">
+        <div class="sidebar-header">
+            <div class="logo-icon admin-logo">⚙️</div>
+            <h3>لوحة الإدارة</h3>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="#" class="nav-item active" onclick="showAdminSection('overview')">
+                <i class="fas fa-chart-bar"></i> نظرة عامة
+            </a>
+            <a href="#" class="nav-item" onclick="showAdminSection('upload')">
+                <i class="fas fa-upload"></i> رفع محاضرة
+            </a>
+            <a href="#" class="nav-item" onclick="showAdminSection('lectures')">
+                <i class="fas fa-video"></i> المحاضرات
+            </a>
+            <a href="#" class="nav-item" onclick="showAdminSection('users')">
+                <i class="fas fa-users"></i> المستخدمين
+            </a>
+            <a href="#" class="nav-item" onclick="showAdminSection('createUser')">
+                <i class="fas fa-user-plus"></i> إنشاء حساب مستخدم
+            </a>
+            <a href="#" class="nav-item logout-btn" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i> تسجيل خروج
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <header class="top-bar">            <h2 id="adminPageTitle">نظرة عامة</h2>
+            <div class="user-info">
+                <span>لوحة الإدارة</span>
+                <div class="user-avatar admin-avatar">⚙️</div>
+            </div>
+        </header>
+
+        <!-- Overview Section -->
+        <section id="overviewSection" class="content-section active">
+            <div class="stats-grid admin-stats">
+                <div class="stat-card admin-stat">
+                    <i class="fas fa-users"></i>
+                    <h3 id="totalUsers">0</h3>
+                    <p>إجمالي المستخدمين</p>
+                </div>
+                <div class="stat-card admin-stat">
+                    <i class="fas fa-check-circle"></i>
+                    <h3 id="paidUsers">0</h3>
+                    <p>مستخدمين مفعلين</p>
+                </div>
+                <div class="stat-card admin-stat">
+                    <i class="fas fa-video"></i>
+                    <h3 id="totalLectures">0</h3>
+                    <p>محاضرة مرفوعة</p>
+                </div>
+                <div class="stat-card admin-stat">
+                    <i class="fas fa-clock"></i>
+                    <h3 id="pendingUsers">0</h3>
+                    <p>في انتظار الدفع</p>
+                </div>
+            </div>
+
+            <div class="admin-welcome">
+                <h2>مرحباً بك في لوحة الإدارة</h2>
+                <p>يمكنك من هنا إدارة المحاضرات والمستخدمين وتفعيل الاشتراكات</p>
+            </div>
+        </section>
+
+        <!-- Upload Lecture Section -->
+        <section id="uploadSection" class="content-section">
+            <div class="upload-card">
+                <h2><i class="fas fa-upload"></i> رفع محاضرة جديدة</h2>
+                <form id="uploadForm" class="upload-form">
+                    <div class="input-group">
+                        <label>عنوان المحاضرة</label>
+                        <input type="text" id="lectureTitle" placeholder="مثال: المحاضرة الأولى: شرح درس النحو" required>
+                    </div>
+                    <div class="input-group">
+                        <label>الوصف / الفئة</label>
+                        <input type="text" id="lectureCategory" placeholder="مثال: النحو - الوحدة الأولى" required>                    </div>
+                    <div class="input-group">
+                        <label>الصف الدراسي</label>
+                        <select id="lectureGrade" required>
+                            <option value="">اختر الصف</option>
+                            <option value="أولى ثانوي">أولى ثانوي</option>
+                            <option value="تانية ثانوي">تانية ثانوي</option>
+                            <option value="تالتة ثانوي">تالتة ثانوي</option>
+                            <option value="كل الصفوف">كل الصفوف</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>رابط الفيديو (URL)</label>
+                        <input type="url" id="lectureVideoUrl" placeholder="https://example.com/video.mp4" required>
+                        <small>يمكنك رفع الفيديو على سيرفر أو استخدام رابط مباشر</small>
+                    </div>
+                    <div class="input-group">
+                        <label>أو ارفع ملف الفيديو</label>
+                        <div class="file-upload-area" id="fileUploadArea">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <p>اسحب الملف هنا أو اضغط للاختيار</p>
+                            <input type="file" id="lectureVideoFile" accept="video/*" style="display:none">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-primary">
+                        <span><i class="fas fa-upload"></i> رفع المحاضرة</span>
+                        <div class="btn-shine"></div>
+                    </button>
+                </form>
+                <div id="uploadMessage" class="message"></div>
+            </div>
+        </section>
+
+        <!-- Lectures Management Section -->
+        <section id="lecturesSection" class="content-section">
+            <h2><i class="fas fa-video"></i> إدارة المحاضرات</h2>
+            <div class="lectures-table-container">
+                <table class="data-table" id="lecturesTable">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>العنوان</th>
+                            <th>الفئة</th>
+                            <th>الصف</th>
+                            <th>التاريخ</th>
+                            <th>إجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody id="lecturesTableBody">
+                    </tbody>                </table>
+            </div>
+        </section>
+
+        <!-- Users Management Section -->
+        <section id="usersSection" class="content-section">
+            <h2><i class="fas fa-users"></i> إدارة المستخدمين</h2>
+            <div class="search-bar">
+                <input type="text" id="searchUsers" placeholder="بحث بالاسم أو الرقم القومي..." oninput="searchUsersTable()">
+            </div>
+            <div class="users-table-container">
+                <table class="data-table" id="usersTable">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>الاسم</th>
+                            <th>الرقم القومي</th>
+                            <th>رقم الطالب</th>
+                            <th>رقم ولي الأمر</th>
+                            <th>الصف</th>
+                            <th>حالة الدفع</th>
+                            <th>تاريخ التسجيل</th>
+                            <th>إجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersTableBody">
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Create User Section -->
+        <section id="createUserSection" class="content-section">
+            <div class="upload-card">
+                <h2><i class="fas fa-user-plus"></i> إنشاء حساب مستخدم</h2>
+                <form id="createUserForm" class="upload-form">
+                    <div class="input-group">
+                        <label>الاسم الأول</label>
+                        <input type="text" id="cuFirstName" placeholder="الاسم الأول" required>
+                    </div>
+                    <div class="input-group">
+                        <label>الاسم الثاني</label>
+                        <input type="text" id="cuSecondName" placeholder="الاسم الثاني" required>
+                    </div>
+                    <div class="input-group">
+                        <label>الاسم الثالث</label>
+                        <input type="text" id="cuThirdName" placeholder="الاسم الثالث" required>
+                    </div>
+                    <div class="input-group">
+                        <label>رقم الطالب</label>                        <input type="text" id="cuStudentNumber" placeholder="رقم الطالب" required>
+                    </div>
+                    <div class="input-group">
+                        <label>رقم ولي الأمر</label>
+                        <input type="tel" id="cuParentNumber" placeholder="رقم ولي الأمر" required>
+                    </div>
+                    <div class="input-group">
+                        <label>الرقم القومي</label>
+                        <input type="text" id="cuNationalId" placeholder="الرقم القومي (14 رقم)" required maxlength="14">
+                    </div>
+                    <div class="input-group">
+                        <label>الصف الدراسي</label>
+                        <select id="cuGrade" required>
+                            <option value="">اختر الصف</option>
+                            <option value="أولى ثانوي">أولى ثانوي</option>
+                            <option value="تانية ثانوي">تانية ثانوي</option>
+                            <option value="تالتة ثانوي">تالتة ثانوي</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>كلمة المرور</label>
+                        <input type="password" id="cuPassword" placeholder="كلمة المرور" required minlength="6">
+                    </div>
+                    <div class="input-group checkbox-group">
+                        <label>
+                            <input type="checkbox" id="cuPaid" checked> تفعيل الدفع مباشرة
+                        </label>
+                    </div>
+                    <button type="submit" class="btn-primary">
+                        <span><i class="fas fa-user-plus"></i> إنشاء الحساب</span>
+                        <div class="btn-shine"></div>
+                    </button>
+                </form>
+                <div id="createUserMessage" class="message"></div>
+            </div>
+        </section>
+    </main>
+
+    <script src="app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            initAdmin();
+
+            // Upload form
+            document.getElementById('uploadForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const fileInput = document.getElementById('lectureVideoFile');
+                const videoUrl = document.getElementById('lectureVideoUrl').value;
+
+                if (fileInput.files.length > 0) {                    // Handle file upload
+                    const file = fileInput.files[0];
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        handleLectureUpload(
+                            document.getElementById('lectureTitle').value,
+                            document.getElementById('lectureCategory').value,
+                            document.getElementById('lectureGrade').value,
+                            e.target.result
+                        );
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    handleLectureUpload(
+                        document.getElementById('lectureTitle').value,
+                        document.getElementById('lectureCategory').value,
+                        document.getElementById('lectureGrade').value,
+                        videoUrl
+                    );
+                }
+            });
+
+            // File upload area click
+            document.getElementById('fileUploadArea').addEventListener('click', function() {
+                document.getElementById('lectureVideoFile').click();
+            });
+
+            // Create user form
+            document.getElementById('createUserForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                handleAdminCreateUser({
+                    firstName: document.getElementById('cuFirstName').value,
+                    secondName: document.getElementById('cuSecondName').value,
+                    thirdName: document.getElementById('cuThirdName').value,
+                    studentNumber: document.getElementById('cuStudentNumber').value,
+                    parentNumber: document.getElementById('cuParentNumber').value,
+                    nationalId: document.getElementById('cuNationalId').value,
+                    grade: document.getElementById('cuGrade').value,
+                    password: document.getElementById('cuPassword').value,
+                    paid: document.getElementById('cuPaid').checked
+                });
+            });
+        });
+
+        function showAdminSection(section) {
+            document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.admin-sidebar .nav-item').forEach(n => n.classList.remove('active'));
+
+            document.getElementById(section + 'Section').classList.add('active');
+            event.target.closest('.nav-item').classList.add('active');
+            const titles = {
+                overview: 'نظرة عامة',
+                upload: 'رفع محاضرة',
+                lectures: 'المحاضرات',
+                users: 'المستخدمين',
+                createUser: 'إنشاء حساب مستخدم'
+            };
+            document.getElementById('adminPageTitle').textContent = titles[section];
+
+            if (section === 'users') loadUsersTable();
+            if (section === 'lectures') loadLecturesTable();
+            if (section === 'overview') updateAdminStats();
+        }
+
+        function searchUsersTable() {
+            const query = document.getElementById('searchUsers').value.toLowerCase();
+            const rows = document.querySelectorAll('#usersTableBody tr');
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(query) ? '' : 'none';
+            });
+        }
+    </script>
+</body>
+</html>
