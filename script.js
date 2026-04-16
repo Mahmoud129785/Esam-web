@@ -1,11 +1,7 @@
 // script.js - منصة المستر عصام شويقة
 
 // ========== بيانات الأدمن ==========
-const ADMIN_EMAILS = [
-    'admin@shweiqa.com',
-    'admin1@shweiqa.com',
-    'admin2@shweiqa.com'
-];
+const ADMIN_EMAILS = ['admin@shweiqa.com', 'admin1@shweiqa.com', 'admin2@shweiqa.com'];
 
 // ========== تهيئة localStorage ==========
 function initializeData() {
@@ -14,12 +10,6 @@ function initializeData() {
     }
     if (!localStorage.getItem('lessons')) {
         localStorage.setItem('lessons', JSON.stringify([]));
-    }
-    if (!localStorage.getItem('pendingUsers')) {
-        localStorage.setItem('pendingUsers', JSON.stringify([]));
-    }
-    if (!localStorage.getItem('approvedUsers')) {
-        localStorage.setItem('approvedUsers', JSON.stringify([]));
     }
 }
 
@@ -39,15 +29,19 @@ if (document.getElementById('loginForm')) {
             return;
         }
 
-        // التحقق من المستخدمين المapproved
-        const approvedUsers = JSON.parse(localStorage.getItem('approvedUsers')) || [];
-        const user = approvedUsers.find(u => u.email === email && u.password === password);
+        // التحقق من المستخدمين العاديين
+        const users = JSON.parse(localStorage.getItem('users')) || [];
+        const user = users.find(u => u.email === email && u.password === password);
 
         if (user) {
-            localStorage.setItem('currentUser', JSON.stringify({ ...user, isAdmin: false, approved: true }));
-            window.location.href = 'dashboard.html';
+            if (user.status === 'approved') {
+                localStorage.setItem('currentUser', JSON.stringify({ ...user, isAdmin: false }));
+                window.location.href = 'dashboard.html';
+            } else {
+                alert('❌ حسابك لم يتم تفعيله بعد. يرجى الانتظار حتى توافق الإدارة.');
+            }
         } else {
-            alert('❌ البريد الإلكتروني أو كلمة المرور غير صحيحة، أو حسابك لم يتم تفعيله بعد');
+            alert('❌ البريد الإلكتروني أو كلمة المرور غير صحيحة');
         }
     });
 }
@@ -76,8 +70,16 @@ if (document.getElementById('signupForm')) {
         const fullName = `${firstName} ${secondName} ${thirdName}`;
 
         const users = JSON.parse(localStorage.getItem('users')) || [];
+        
+        // التحقق من عدم تكرار البريد
         if (users.some(u => u.email === email)) {
             alert('❌ هذا البريد مسجل بالفعل');
+            return;
+        }
+
+        // التحقق من عدم تكرار رقم الطالب
+        if (users.some(u => u.studentId === studentId)) {
+            alert('❌ رقم الطالب مسجل بالفعل');
             return;
         }
 
@@ -94,17 +96,13 @@ if (document.getElementById('signupForm')) {
             grade,
             password,
             createdAt: new Date().toISOString(),
-            status: 'pending'
+            status: 'pending'  // pending أو approved
         };
 
         users.push(newUser);
         localStorage.setItem('users', JSON.stringify(users));
 
-        const pendingUsers = JSON.parse(localStorage.getItem('pendingUsers')) || [];
-        pendingUsers.push(newUser);
-        localStorage.setItem('pendingUsers', JSON.stringify(pendingUsers));
-
-        alert('✅ تم إنشاء حسابك بنجاح! سيتم مراجعته من قبل الإدارة وسيتم إعلامك عند التفعيل.');
+        alert('✅ تم إنشاء حسابك بنجاح! سيتم مراجعته من قبل الإدارة وسيتم تفعيله قريباً.');
         window.location.href = 'index.html';
     });
 }
@@ -118,7 +116,7 @@ if (window.location.pathname.includes('dashboard.html')) {
 
     document.getElementById('userNameDisplay').innerText = currentUser.fullName || currentUser.name;
 
-    if (!currentUser.approved) {
+    if (currentUser.status !== 'approved') {
         document.getElementById('pendingMessage').style.display = 'block';
         document.getElementById('courseContent').style.display = 'none';
     } else {
@@ -132,13 +130,17 @@ function loadLessonsForUser() {
     const lessons = JSON.parse(localStorage.getItem('lessons')) || [];
     const grid = document.getElementById('lessonsGrid');
     if (grid) {
-        grid.innerHTML = lessons.map(lesson => `
-            <div class="lesson-card" onclick="playVideo('${lesson.url}')">
-                <i class="fas fa-video"></i>
-                <h3>${lesson.title}</h3>
-                <p>${lesson.description || 'محاضرة جديدة'}</p>
-            </div>
-        `).join('');
+        if (lessons.length === 0) {
+            grid.innerHTML = '<p style="text-align:center; grid-column:span 3;">⚠️ لا توجد محاضرات حالياً، سيتم إضافتها قريباً</p>';
+        } else {
+            grid.innerHTML = lessons.map(lesson => `
+                <div class="lesson-card" onclick="playVideo('${lesson.url}')">
+                    <i class="fas fa-video"></i>
+                    <h3>${lesson.title}</h3>
+                    <p>${lesson.description || 'محاضرة جديدة'}</p>
+                </div>
+            `).join('');
+        }
     }
 }
 
@@ -154,7 +156,6 @@ if (window.location.pathname.includes('admin.html')) {
     }
 
     loadUsersTable();
-    loadPendingUsers();
     loadAdminLessons();
 
     // تبويبات
@@ -193,11 +194,14 @@ if (window.location.pathname.includes('admin.html')) {
 
 function loadUsersTable() {
     const users = JSON.parse(localStorage.getItem('users')) || [];
-    const approvedUsers = JSON.parse(localStorage.getItem('approvedUsers')) || [];
     const tbody = document.getElementById('usersTable');
     if (tbody) {
+        if (users.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="8" style="text-align:center">لا يوجد مستخدمين مسجلين</td></tr>';
+            return;
+        }
         tbody.innerHTML = users.map((user, index) => {
-            const isApproved = approvedUsers.some(u => u.email === user.email);
+            const isApproved = user.status === 'approved';
             return `
                 <tr>
                     <td>${index + 1}</td>
@@ -206,8 +210,11 @@ function loadUsersTable() {
                     <td>${user.studentId}</td>
                     <td>${user.parentPhone}</td>
                     <td>${user.grade}</td>
-                    <td class="${isApproved ? 'status-approved' : 'status-pending'}">${isApproved ? 'مفعل' : 'قيد المراجعة'}</td>
-                    <td>${new Date(user.createdAt).toLocaleDateString()}</td>
+                    <td class="${isApproved ? 'status-approved' : 'status-pending'}">${isApproved ? '✅ مفعل' : '⏳ قيد المراجعة'}</td>
+                    <td>
+                        ${!isApproved ? `<button onclick="approveUser('${user.email}')" class="approve-btn">✅ تفعيل</button>` : ''}
+                        <button onclick="deleteUser('${user.email}')" class="delete-btn">🗑️ حذف</button>
+                    </td>
                 </tr>
             `;
         }).join('');
@@ -216,12 +223,15 @@ function loadUsersTable() {
 
 function filterUsers(search) {
     const users = JSON.parse(localStorage.getItem('users')) || [];
-    const approvedUsers = JSON.parse(localStorage.getItem('approvedUsers')) || [];
     const filtered = users.filter(u => u.fullName.includes(search) || u.email.includes(search));
     const tbody = document.getElementById('usersTable');
     if (tbody) {
+        if (filtered.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="8" style="text-align:center">لا توجد نتائج</td></tr>';
+            return;
+        }
         tbody.innerHTML = filtered.map((user, index) => {
-            const isApproved = approvedUsers.some(u => u.email === user.email);
+            const isApproved = user.status === 'approved';
             return `
                 <tr>
                     <td>${index + 1}</td>
@@ -230,76 +240,37 @@ function filterUsers(search) {
                     <td>${user.studentId}</td>
                     <td>${user.parentPhone}</td>
                     <td>${user.grade}</td>
-                    <td class="${isApproved ? 'status-approved' : 'status-pending'}">${isApproved ? 'مفعل' : 'قيد المراجعة'}</td>
-                    <td>${new Date(user.createdAt).toLocaleDateString()}</td>
+                    <td class="${isApproved ? 'status-approved' : 'status-pending'}">${isApproved ? '✅ مفعل' : '⏳ قيد المراجعة'}</td>
+                    <td>
+                        ${!isApproved ? `<button onclick="approveUser('${user.email}')" class="approve-btn">✅ تفعيل</button>` : ''}
+                        <button onclick="deleteUser('${user.email}')" class="delete-btn">🗑️ حذف</button>
+                    </td>
                 </tr>
             `;
         }).join('');
     }
 }
 
-function loadPendingUsers() {
-    const pendingUsers = JSON.parse(localStorage.getItem('pendingUsers')) || [];
-    const container = document.getElementById('pendingUsersList');
-    if (container) {
-        if (pendingUsers.length === 0) {
-            container.innerHTML = '<p style="text-align:center">لا توجد طلبات انتظار</p>';
-            return;
-        }
-        container.innerHTML = pendingUsers.map(user => `
-            <div class="glass-card" style="padding:20px; margin-bottom:15px;">
-                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap;">
-                    <div>
-                        <h4>${user.fullName}</h4>
-                        <p>📧 ${user.email}</p>
-                        <p>📱 ${user.parentPhone}</p>
-                        <p>📚 ${user.grade}</p>
-                    </div>
-                    <div>
-                        <button onclick="approveUser('${user.email}')" class="approve-btn">✅ تفعيل الحساب</button>
-                        <button onclick="deleteUser('${user.email}')" class="delete-btn">🗑️ حذف</button>
-                    </div>
-                </div>
-            </div>
-        `).join('');
-    }
-}
-
 function approveUser(email) {
     const users = JSON.parse(localStorage.getItem('users')) || [];
-    const pendingUsers = JSON.parse(localStorage.getItem('pendingUsers')) || [];
-    const approvedUsers = JSON.parse(localStorage.getItem('approvedUsers')) || [];
-
-    const user = users.find(u => u.email === email);
-    if (user && !approvedUsers.some(u => u.email === email)) {
-        approvedUsers.push({ ...user, approved: true });
-        localStorage.setItem('approvedUsers', JSON.stringify(approvedUsers));
-
-        const newPending = pendingUsers.filter(u => u.email !== email);
-        localStorage.setItem('pendingUsers', JSON.stringify(newPending));
-
-        alert(`✅ تم تفعيل حساب ${user.fullName}`);
-        loadPendingUsers();
+    const userIndex = users.findIndex(u => u.email === email);
+    
+    if (userIndex !== -1 && users[userIndex].status !== 'approved') {
+        users[userIndex].status = 'approved';
+        localStorage.setItem('users', JSON.stringify(users));
+        alert(`✅ تم تفعيل حساب ${users[userIndex].fullName}`);
         loadUsersTable();
+    } else {
+        alert('⚠️ هذا المستخدم مفعل بالفعل أو غير موجود');
     }
 }
 
 function deleteUser(email) {
     if (confirm('⚠️ هل أنت متأكد من حذف هذا المستخدم؟')) {
         let users = JSON.parse(localStorage.getItem('users')) || [];
-        let pendingUsers = JSON.parse(localStorage.getItem('pendingUsers')) || [];
-        let approvedUsers = JSON.parse(localStorage.getItem('approvedUsers')) || [];
-
         users = users.filter(u => u.email !== email);
-        pendingUsers = pendingUsers.filter(u => u.email !== email);
-        approvedUsers = approvedUsers.filter(u => u.email !== email);
-
         localStorage.setItem('users', JSON.stringify(users));
-        localStorage.setItem('pendingUsers', JSON.stringify(pendingUsers));
-        localStorage.setItem('approvedUsers', JSON.stringify(approvedUsers));
-
         alert('✅ تم حذف المستخدم');
-        loadPendingUsers();
         loadUsersTable();
     }
 }
@@ -308,6 +279,10 @@ function loadAdminLessons() {
     const lessons = JSON.parse(localStorage.getItem('lessons')) || [];
     const container = document.getElementById('adminLessonsList');
     if (container) {
+        if (lessons.length === 0) {
+            container.innerHTML = '<p style="text-align:center">لا توجد محاضرات مضافة</p>';
+            return;
+        }
         container.innerHTML = lessons.map(lesson => `
             <div class="lesson-item">
                 <div class="lesson-item-info">
