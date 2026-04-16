@@ -1,4 +1,4 @@
-// script.js - منصة المستر عصام شويقة
+// script.js - منصة المستر عصام شويقة (بدون نظام تفعيل)
 
 // ========== بيانات الأدمن ==========
 const ADMIN_EMAILS = ['admin@shweiqa.com', 'admin1@shweiqa.com', 'admin2@shweiqa.com'];
@@ -34,12 +34,8 @@ if (document.getElementById('loginForm')) {
         const user = users.find(u => u.email === email && u.password === password);
 
         if (user) {
-            if (user.status === 'approved') {
-                localStorage.setItem('currentUser', JSON.stringify({ ...user, isAdmin: false }));
-                window.location.href = 'dashboard.html';
-            } else {
-                alert('❌ حسابك لم يتم تفعيله بعد. يرجى الانتظار حتى توافق الإدارة.');
-            }
+            localStorage.setItem('currentUser', JSON.stringify({ ...user, isAdmin: false }));
+            window.location.href = 'dashboard.html';
         } else {
             alert('❌ البريد الإلكتروني أو كلمة المرور غير صحيحة');
         }
@@ -95,15 +91,17 @@ if (document.getElementById('signupForm')) {
             email,
             grade,
             password,
-            createdAt: new Date().toISOString(),
-            status: 'pending'  // pending أو approved
+            createdAt: new Date().toISOString()
         };
 
         users.push(newUser);
         localStorage.setItem('users', JSON.stringify(users));
 
-        alert('✅ تم إنشاء حسابك بنجاح! سيتم مراجعته من قبل الإدارة وسيتم تفعيله قريباً.');
-        window.location.href = 'index.html';
+        // تسجيل الدخول مباشرة بعد إنشاء الحساب
+        localStorage.setItem('currentUser', JSON.stringify({ ...newUser, isAdmin: false }));
+        
+        alert('✅ تم إنشاء حسابك بنجاح! جاري تحويلك إلى لوحة التعلم...');
+        window.location.href = 'dashboard.html';
     });
 }
 
@@ -115,15 +113,8 @@ if (window.location.pathname.includes('dashboard.html')) {
     }
 
     document.getElementById('userNameDisplay').innerText = currentUser.fullName || currentUser.name;
-
-    if (currentUser.status !== 'approved') {
-        document.getElementById('pendingMessage').style.display = 'block';
-        document.getElementById('courseContent').style.display = 'none';
-    } else {
-        document.getElementById('pendingMessage').style.display = 'none';
-        document.getElementById('courseContent').style.display = 'block';
-        loadLessonsForUser();
-    }
+    document.getElementById('courseContent').style.display = 'block';
+    loadLessonsForUser();
 }
 
 function loadLessonsForUser() {
@@ -197,11 +188,10 @@ function loadUsersTable() {
     const tbody = document.getElementById('usersTable');
     if (tbody) {
         if (users.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="8" style="text-align:center">لا يوجد مستخدمين مسجلين</td></tr>';
+            tbody.innerHTML = '<td><td colspan="7" style="text-align:center">لا يوجد مستخدمين مسجلين</td></tr>';
             return;
         }
         tbody.innerHTML = users.map((user, index) => {
-            const isApproved = user.status === 'approved';
             return `
                 <tr>
                     <td>${index + 1}</td>
@@ -210,12 +200,10 @@ function loadUsersTable() {
                     <td>${user.studentId}</td>
                     <td>${user.parentPhone}</td>
                     <td>${user.grade}</td>
-                    <td class="${isApproved ? 'status-approved' : 'status-pending'}">${isApproved ? '✅ مفعل' : '⏳ قيد المراجعة'}</td>
                     <td>
-                        ${!isApproved ? `<button onclick="approveUser('${user.email}')" class="approve-btn">✅ تفعيل</button>` : ''}
                         <button onclick="deleteUser('${user.email}')" class="delete-btn">🗑️ حذف</button>
                     </td>
-                </tr>
+                 </tr>
             `;
         }).join('');
     }
@@ -227,11 +215,10 @@ function filterUsers(search) {
     const tbody = document.getElementById('usersTable');
     if (tbody) {
         if (filtered.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="8" style="text-align:center">لا توجد نتائج</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center">لا توجد نتائج</td></tr>';
             return;
         }
         tbody.innerHTML = filtered.map((user, index) => {
-            const isApproved = user.status === 'approved';
             return `
                 <tr>
                     <td>${index + 1}</td>
@@ -240,28 +227,12 @@ function filterUsers(search) {
                     <td>${user.studentId}</td>
                     <td>${user.parentPhone}</td>
                     <td>${user.grade}</td>
-                    <td class="${isApproved ? 'status-approved' : 'status-pending'}">${isApproved ? '✅ مفعل' : '⏳ قيد المراجعة'}</td>
                     <td>
-                        ${!isApproved ? `<button onclick="approveUser('${user.email}')" class="approve-btn">✅ تفعيل</button>` : ''}
                         <button onclick="deleteUser('${user.email}')" class="delete-btn">🗑️ حذف</button>
-                    </td>
-                </tr>
+                     </td>
+                 </tr>
             `;
         }).join('');
-    }
-}
-
-function approveUser(email) {
-    const users = JSON.parse(localStorage.getItem('users')) || [];
-    const userIndex = users.findIndex(u => u.email === email);
-    
-    if (userIndex !== -1 && users[userIndex].status !== 'approved') {
-        users[userIndex].status = 'approved';
-        localStorage.setItem('users', JSON.stringify(users));
-        alert(`✅ تم تفعيل حساب ${users[userIndex].fullName}`);
-        loadUsersTable();
-    } else {
-        alert('⚠️ هذا المستخدم مفعل بالفعل أو غير موجود');
     }
 }
 
@@ -270,6 +241,13 @@ function deleteUser(email) {
         let users = JSON.parse(localStorage.getItem('users')) || [];
         users = users.filter(u => u.email !== email);
         localStorage.setItem('users', JSON.stringify(users));
+        
+        // لو المستخدم المحذوف هو المسجل حالياً، نسجله خروج
+        const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+        if (currentUser && currentUser.email === email) {
+            localStorage.removeItem('currentUser');
+        }
+        
         alert('✅ تم حذف المستخدم');
         loadUsersTable();
     }
@@ -316,4 +294,4 @@ function copyNumber() {
 function logout() {
     localStorage.removeItem('currentUser');
     window.location.href = 'index.html';
-}
+                                       }
