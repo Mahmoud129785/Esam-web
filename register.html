@@ -6,14 +6,12 @@
     <title>إنشاء حساب جديد - منصة المستر عصام شويقة</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="auth-page">
     <div class="bg-animation">
-        <div class="gear gear-1"></div>
-        <div class="gear gear-2"></div>
-        <div class="gear gear-3"></div>
-        <div class="gear gear-4"></div>
-        <div class="gear gear-5"></div>
+        <div class="gear gear-1"></div><div class="gear gear-2"></div>
+        <div class="gear gear-3"></div><div class="gear gear-4"></div><div class="gear gear-5"></div>
     </div>
 
     <div class="auth-container">
@@ -25,6 +23,10 @@
             </div>
 
             <form id="registerForm" class="auth-form">
+                <div class="input-group">
+                    <label>البريد الإلكتروني</label>
+                    <input type="email" id="email" placeholder="example@email.com" required>
+                </div>
                 <div class="input-group">
                     <label>الاسم الأول</label>
                     <input type="text" id="firstName" placeholder="الاسم الأول" required>
@@ -45,9 +47,9 @@
                     <label>رقم ولي الأمر</label>
                     <input type="tel" id="parentNumber" placeholder="رقم ولي الأمر" required>
                 </div>
-                <div class="input-group">
-                    <label>الرقم القومي</label>
-                    <input type="text" id="nationalId" placeholder="الرقم القومي (14 رقم)" required maxlength="14" pattern="[0-9]{14}">                </div>
+                <div class="input-group">                    <label>الرقم القومي</label>
+                    <input type="text" id="nationalId" placeholder="الرقم القومي (14 رقم)" required maxlength="14">
+                </div>
                 <div class="input-group">
                     <label>الصف الدراسي</label>
                     <select id="grade" required>
@@ -70,7 +72,6 @@
                     <span>إنشاء الحساب</span>
                     <div class="btn-shine"></div>
                 </button>
-
                 <p class="auth-switch">لديك حساب بالفعل؟ <a href="index.html">تسجيل الدخول</a></p>
             </form>
 
@@ -82,18 +83,18 @@
     <script>
         document.getElementById('registerForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            const data = {
-                firstName: document.getElementById('firstName').value,
-                secondName: document.getElementById('secondName').value,
-                thirdName: document.getElementById('thirdName').value,
-                studentNumber: document.getElementById('studentNumber').value,
-                parentNumber: document.getElementById('parentNumber').value,
-                nationalId: document.getElementById('nationalId').value,
+            handleRegister({
+                email: document.getElementById('email').value.trim(),
+                firstName: document.getElementById('firstName').value.trim(),
+                secondName: document.getElementById('secondName').value.trim(),
+                thirdName: document.getElementById('thirdName').value.trim(),
+                studentNumber: document.getElementById('studentNumber').value.trim(),
+                parentNumber: document.getElementById('parentNumber').value.trim(),
+                nationalId: document.getElementById('nationalId').value.trim(),
                 grade: document.getElementById('grade').value,
                 password: document.getElementById('password').value,
                 confirmPassword: document.getElementById('confirmPassword').value
-            };
-            handleRegister(data);
+            });
         });
-    </script>
-</body></html>
+    </script></body>
+</html>
